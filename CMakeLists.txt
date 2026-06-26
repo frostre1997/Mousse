@@ -3,20 +3,17 @@ project(MouseOnAndroid)
 
 set(CMAKE_CXX_STANDARD 23)
 
-# The action sets GEODE_SDK environment variable automatically
-if(DEFINED ENV{GEODE_SDK})
-    set(GEODE_SDK_DIR "$ENV{GEODE_SDK}")
-    message(STATUS "Using GEODE_SDK from environment: ${GEODE_SDK_DIR}")
-else()
-    set(GEODE_SDK_DIR "$ENV{HOME}/.geode/sdk")
+# Geode_DIR must be set via CMake command line
+if(NOT Geode_DIR)
+    message(FATAL_ERROR "Geode_DIR must be set to the Geode SDK cmake folder")
 endif()
 
-# Tell CMake where to find GeodeConfig.cmake
-set(Geode_DIR "${GEODE_SDK_DIR}/cmake" CACHE PATH "Geode config directory")
-message(STATUS "Geode_DIR set to: ${Geode_DIR}")
+message(STATUS "Geode_DIR: ${Geode_DIR}")
 
+# Find the Geode package
 find_package(Geode REQUIRED)
 
+# Check if we have hook support
 geode_require_hook_support()
 
 # Find source files
@@ -32,6 +29,13 @@ else()
     set(RESOURCES "")
 endif()
 
+# If no source files found, error
+list(LENGTH SOURCES SOURCE_COUNT)
+if(SOURCE_COUNT EQUAL 0)
+    message(FATAL_ERROR "No source files found! Please add at least one .cpp file.")
+endif()
+
+# Define the mod
 geode_mod(
     NAME "Mouse on Android"
     ID "frostre1997.mouse_on_android"
