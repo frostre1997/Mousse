@@ -1,31 +1,30 @@
 cmake_minimum_required(VERSION 3.27)
 project(MouseOnAndroid)
 
-set(CMAKE_CXX_STANDARD 23)
-
-# Set default platform if not specified
+# Set default if not provided
 if(NOT GEODE_TARGET_PLATFORM)
     set(GEODE_TARGET_PLATFORM "Android64")
 endif()
 
-# Find Geode SDK
+set(CMAKE_CXX_STANDARD 23)
+
+# Find Geode SDK - check environment variable FIRST
 if(NOT GEODE_SDK_DIR)
-    # Try common locations
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../geode-sdk")
-        set(GEODE_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../geode-sdk")
+    # First, check if the action set the GEODE_SDK environment variable
+    if(DEFINED ENV{GEODE_SDK})
+        set(GEODE_SDK_DIR "$ENV{GEODE_SDK}")
+        message(STATUS "Using GEODE_SDK from environment: ${GEODE_SDK_DIR}")
+    # Then try the default install location
     elseif(EXISTS "$ENV{HOME}/.geode/sdk")
         set(GEODE_SDK_DIR "$ENV{HOME}/.geode/sdk")
+        message(STATUS "Using GEODE_SDK from default location: ${GEODE_SDK_DIR}")
     else()
         message(FATAL_ERROR "GEODE_SDK_DIR not found! Please set GEODE_SDK_DIR to the Geode SDK path.")
     endif()
 endif()
 
-message(STATUS "Using Geode SDK at: ${GEODE_SDK_DIR}")
-
-# Add Geode's CMake module path
+# Add Geode's CMake module path and find the package
 list(APPEND CMAKE_MODULE_PATH "${GEODE_SDK_DIR}/cmake")
-
-# Find Geode package
 find_package(Geode REQUIRED)
 
 geode_require_hook_support()
