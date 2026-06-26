@@ -1,5 +1,5 @@
 {
-    "geode": ">=1.0.0",
+    "geode": "nightly",
     "gd": {
         "android": "2.2074"
     },
