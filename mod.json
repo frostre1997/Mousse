@@ -1,10 +1,8 @@
-{
-    "geode": "3.4.0",
     "gd": {
-        "android": "2.2074",
+        "android": "2.2074"
     },
     "version": "1.0.0",
-    "id": "frostre1997.usr.mouse_on_android",
+    "id": "frostre1997.mouse_on_android",
     "name": "Mousse on Android",
     "developer": "frostre1997",
     "description": "Enables desktop-style mouse cursor and pointer input on Android devices for Geometry Dash, allowing use of external mice or trackpads.",
