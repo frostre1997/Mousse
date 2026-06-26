@@ -3,20 +3,15 @@ project(MouseOnAndroid)
 
 set(CMAKE_CXX_STANDARD 23)
 
-# The CLI will set Geode_DIR automatically; we just need to find it.
+# The action sets GEODE_SDK environment variable
+if(DEFINED ENV{GEODE_SDK})
+    set(GEODE_SDK_DIR "$ENV{GEODE_SDK}")
+else()
+    set(GEODE_SDK_DIR "$ENV{HOME}/.geode/sdk")
+endif()
+
+list(APPEND CMAKE_MODULE_PATH "${GEODE_SDK_DIR}/cmake")
 find_package(Geode REQUIRED)
 
 geode_require_hook_support()
-
-file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.hpp" "src/*.h")
-file(GLOB_RECURSE RESOURCES "resources/*")
-
-geode_mod(
-    NAME "Mouse on Android"
-    ID "frostre1997.mouse_on_android"
-    VERSION "1.0.0"
-    AUTHOR "frostre1997"
-    DESCRIPTION "Desktop-style mouse cursor on Android"
-    SOURCES ${SOURCES}
-    RESOURCES ${RESOURCES}
-)
+...
