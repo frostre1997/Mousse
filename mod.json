@@ -7,9 +7,14 @@
     "id": "frostre1997.mouse_on_android",
     "name": "Mousse on Android",
     "developer": "frostre1997",
-    "description": "Enables desktop-style mouse cursor and pointer input on Android...",
-}
-    "tags": [ "interface", "input", "android", "mouse", "utility" ],
+    "description": "Enables desktop-style mouse cursor and pointer input on Android devices for Geometry Dash, allowing use of external mice or trackpads.",
+    "tags": [
+        "interface",
+        "input",
+        "android",
+        "mouse",
+        "utility"
+    ],
     "resources": {
         "spritesheets": {},
         "sprites": {},
@@ -35,4 +40,16 @@
             "max": 5.0
         },
         "show-cursor": {
-          
+            "name": "Show Cursor",
+            "description": "Toggle the custom mouse cursor on/off",
+            "type": "bool",
+            "default": true
+        },
+        "invert-scroll": {
+            "name": "Invert Scroll Direction",
+            "description": "Reverse the scroll wheel direction",
+            "type": "bool",
+            "default": false
+        }
+    }
+}
