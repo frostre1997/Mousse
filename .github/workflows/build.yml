@@ -32,11 +32,11 @@ jobs:
 
       - name: Install Geode CLI
         run: |
-          curl -L https://github.com/geode-sdk/geode/releases/latest/download/geode-cli-linux -o geode
-          chmod +x geode
-          sudo mv geode /usr/local/bin/
-          geode --version
-
+          wget https://raw.githubusercontent.com/geode-sdk/cli/main/scripts/install.sh -O install.sh
+          bash install.sh
+          # Aggiungi geode al PATH per questa sessione
+          echo "$HOME/.geode/bin" >> $GITHUB_PATH
+          
       - name: Configure CMake
         run: |
           cmake -B build ${{ matrix.config.cmake-args }} -DCMAKE_BUILD_TYPE=RelWithDebInfo
