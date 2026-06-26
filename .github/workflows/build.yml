@@ -39,17 +39,13 @@ jobs:
           ndk-version: r23c
           add-to-path: false
 
-      - name: Setup Geode CLI
-        run: |
-          curl -fsSL https://github.com/geode-sdk/cli/releases/latest/download/geode-linux > geode
-          chmod +x geode
-          sudo mv geode /usr/local/bin/
-
-      - name: Install Geode SDK
-        run: |
-          mkdir -p .geode
-          cd .geode
-          git clone --depth 1 --branch nightly https://github.com/geode-sdk/sdk.git sdk
+      # The recommended way - use the official Geode setup action
+      - name: Setup Geode
+        uses: geode-sdk/setup-geode-mod@main
+        with:
+          cli: nightly
+          sdk: nightly
+          target: ${{ matrix.config.name }}
 
       - name: Configure CMake
         run: |
@@ -58,7 +54,6 @@ jobs:
             -DANDROID_ABI=${{ matrix.config.abi }} \
             -DANDROID_PLATFORM=android-${{ matrix.config.platform }} \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DGEODE_SDK_DIR=${{ github.workspace }}/.geode/sdk \
             -DGEODE_TARGET_PLATFORM=${{ matrix.config.name }}
 
       - name: Build
