@@ -1,4 +1,4 @@
-# Mouse on Android
+# Mousse on Android
 
 A [Geode](https://geode-sdk.org) mod for **Geometry Dash** that brings desktop-style mouse and trackpad input support to Android devices.
 
