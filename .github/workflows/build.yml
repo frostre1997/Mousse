@@ -14,30 +14,64 @@ jobs:
       matrix:
         config:
           - name: Android64
-            os: ubuntu-latest
+            abi: arm64-v8a
+            platform: 24
           - name: Android32
-            os: ubuntu-latest
+            abi: armeabi-v7a
+            platform: 24
 
     name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Setup Geode
-        uses: geode-sdk/setup-geode-mod@v1
+      # Setup NDK (official action)
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
         with:
-          platform: ${{ matrix.config.name }}
+          ndk-version: r25c
+          add-to-path: false
 
-      - name: Build with Geode CLI
+      # Install any missing dependencies (CMake is already installed)
+      - name: Install build tools
         run: |
-          geode build --platform ${{ matrix.config.name }}
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
 
-      - name: Upload Artifacts
+      # Clone the Geode SDK into a fixed location
+      - name: Clone Geode SDK
+        run: |
+          git clone --depth 1 --branch main https://github.com/geode-sdk/sdk.git $HOME/geode-sdk
+
+      # Configure CMake
+      - name: Configure
+        run: |
+          cmake -B build \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=${{ matrix.config.abi }} \
+            -DANDROID_PLATFORM=android-${{ matrix.config.platform }} \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DGEODE_SDK_DIR=$HOME/geode-sdk \
+            -DGEODE_TARGET_PLATFORM=${{ matrix.config.name }} \
+            -DCMAKE_MODULE_PATH=$HOME/geode-sdk/cmake
+
+      # Build
+      - name: Build
+        run: |
+          cmake --build build --config RelWithDebInfo -j $(nproc)
+
+      # Package (creates .geode file)
+      - name: Package
+        run: |
+          cmake --build build --target package
+
+      # Upload the mod package
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: GeodeMod-${{ matrix.config.name }}
+          name: MouseOnAndroid-${{ matrix.config.name }}
           path: build/*.geode
