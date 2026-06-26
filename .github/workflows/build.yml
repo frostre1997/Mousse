@@ -12,11 +12,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config:
-          - name: Android64
-          - name: Android32
+        platform: [Android64, Android32]
 
-    name: ${{ matrix.config.name }}
+    name: ${{ matrix.platform }}
     runs-on: ubuntu-latest
 
     steps:
@@ -24,14 +22,31 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build Geode Mod
-        uses: geode-sdk/build-geode-mod@main
-        with:
-          target: ${{ matrix.config.name }}
-          sdk: nightly
+      - name: Install Geode CLI (Linux x86_64)
+        run: |
+          # Get the download URL for the Linux x86_64 binary
+          ASSET_URL=$(curl -s https://api.github.com/repos/geode-sdk/cli/releases/latest | \
+            jq -r '.assets[] | select(.name | test("linux.*x86_64|linux.*amd64")) | .browser_download_url')
+          if [ -z "$ASSET_URL" ]; then
+            # fallback: any linux binary
+            ASSET_URL=$(curl -s https://api.github.com/repos/geode-sdk/cli/releases/latest | \
+              jq -r '.assets[] | select(.name | contains("linux")) | .browser_download_url' | head -1)
+          fi
+          echo "Downloading from: $ASSET_URL"
+          curl -L "$ASSET_URL" -o geode
+          chmod +x geode
+          sudo mv geode /usr/local/bin/
+          # Verify it's a valid executable
+          file /usr/local/bin/geode
+
+      - name: Install SDK
+        run: geode sdk install nightly
+
+      - name: Build
+        run: geode build --platform ${{ matrix.platform }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: MouseOnAndroid-${{ matrix.config.name }}
+          name: MouseOnAndroid-${{ matrix.platform }}
           path: build/*.geode
