@@ -15,17 +15,10 @@ jobs:
         config:
           - name: Android32
             os: ubuntu-latest
-            abi: armeabi-v7a
-            platform: 24
+            target: Android32
           - name: Android64
             os: ubuntu-latest
-            abi: arm64-v8a
-            platform: 24
-          # Add Windows/Linux/macOS builds if needed
-          # - name: Windows
-          #   os: windows-latest
-          #   abi: ""
-          #   platform: ""
+            target: Android64
 
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
@@ -36,46 +29,15 @@ jobs:
         with:
           submodules: recursive
 
-      # Only needed for Android builds
-      - name: Setup Android NDK
-        if: contains(matrix.config.name, 'Android')
-        uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r23c
-          add-to-path: false
-
       - name: Setup Geode
-        uses: geode-sdk/build-geode@main
+        uses: geode-sdk/build-geode-mod@main  # Fixed action name
         with:
           cli: nightly
           sdk: nightly
-
-      - name: Configure CMake
-        run: |
-          cmake -B build \
-            ${{ contains(matrix.config.name, 'Android') && format('-DCMAKE_TOOLCHAIN_FILE={0}/build/cmake/android.toolchain.cmake -DANDROID_ABI={1} -DANDROID_PLATFORM={2}', env.ANDROID_NDK_HOME, matrix.config.abi, matrix.config.platform) || '' }} \
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DGEODE_TARGET=${{ contains(matrix.config.name, 'Android') && 'android' || 'desktop' }}
-
-      - name: Build
-        run: |
-          cmake --build build --config RelWithDebInfo --target package -j $(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
+          target: ${{ matrix.config.target }}  # The action handles NDK setup automatically
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: GeodeMod-${{ matrix.config.name }}
-          path: |
-            build/*.geode
-            build/*.zip
-            build/*.dll
-            build/*.so
-            build/*.dylib
-          if-no-files-found: warn
-
-      - name: Upload to Geode (Optional)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          geode package upload build/*.geode
-        env:
-          GEODE_API_KEY: ${{ secrets.GEODE_API_KEY }}
+          path: build/*.geode
