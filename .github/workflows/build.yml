@@ -5,12 +5,12 @@ on:
     branches: [ main, master, develop ]
   pull_request:
     branches: [ main, master, develop ]
-  workflow_dispatch:
+  workflow_dispatch:   # allows manual trigger from the Actions tab
 
 jobs:
   build:
     strategy:
-      fail-fast: false
+      fail-fast: false      # build both platforms even if one fails
       matrix:
         config:
           - name: Android64
@@ -20,16 +20,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      # 1. Check out your repository (with submodules if any)
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
+      # 2. Build the mod using the official Geode action
+      # This action automatically:
+      #   - Downloads the Geode CLI and SDK
+      #   - Sets up the Android NDK
+      #   - Runs CMake with the right toolchain
+      #   - Produces a .geode package in build/
       - name: Build Geode Mod
         uses: geode-sdk/build-geode-mod@main
         with:
-          target: ${{ matrix.config.name }}
-          sdk: nightly
+          target: ${{ matrix.config.name }}   # Android64 or Android32
+          sdk: nightly                         # use the nightly SDK
 
+      # 3. Upload the resulting .geode file as a GitHub Actions artifact
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
