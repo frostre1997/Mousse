@@ -13,9 +13,9 @@ file(GLOB_RECURSE RESOURCES "resources/*")
 
 geode_mod(
     NAME "Mouse on Android"
-    ID "dev.usr.mouse_on_android"
+    ID "frostre1997.mouse_on_android"
     VERSION "1.0.0"
-    AUTHOR "usr"
+    AUTHOR "frostre1997"
     DESCRIPTION "Desktop-style mouse cursor on Android"
     SOURCES ${SOURCES}
     RESOURCES ${RESOURCES}
