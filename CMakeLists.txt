@@ -1,9 +1,20 @@
 cmake_minimum_required(VERSION 3.27)
 project(MouseOnAndroid)
 
-set(GEODE_TARGET_PLATFORM "Android64")
+# Set default if not provided
+if(NOT GEODE_TARGET_PLATFORM)
+    set(GEODE_TARGET_PLATFORM "Android64")
+endif()
+
 set(CMAKE_CXX_STANDARD 23)
 
+# Find Geode SDK
+if(NOT GEODE_SDK_DIR)
+    # Try common locations
+    set(GEODE_SDK_DIR "$ENV{HOME}/.geode/sdk" CACHE PATH "Geode SDK directory")
+endif()
+
+list(APPEND CMAKE_MODULE_PATH "${GEODE_SDK_DIR}/cmake")
 find_package(Geode REQUIRED)
 
 geode_require_hook_support()
