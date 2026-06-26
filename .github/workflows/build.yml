@@ -26,6 +26,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
     env:
       ANDROID_NDK_HOME: ${{ github.workspace }}/android-ndk-r23c
+      GEODE_SDK_DIR: ${{ github.workspace }}/.geode
 
     steps:
       - name: Checkout
@@ -39,13 +40,24 @@ jobs:
           ndk-version: r23c
           add-to-path: false
 
-      # The recommended way - use the official Geode setup action
-      - name: Setup Geode
-        uses: geode-sdk/setup-geode-mod@main
-        with:
-          cli: nightly
-          sdk: nightly
-          target: ${{ matrix.config.name }}
+      - name: Install Geode CLI
+        run: |
+          # Get the latest version from GitHub API
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/geode-sdk/cli/releases/latest | grep -oP '"tag_name": "\K(.*?)(?=")')
+          echo "Latest version: $LATEST_VERSION"
+          
+          # Download the correct binary
+          curl -L "https://github.com/geode-sdk/cli/releases/download/${LATEST_VERSION}/geode-linux" -o geode
+          chmod +x geode
+          sudo mv geode /usr/local/bin/
+          
+          # Verify installation
+          geode --version
+
+      - name: Install Geode SDK
+        run: |
+          mkdir -p $GEODE_SDK_DIR
+          git clone --depth 1 --branch nightly https://github.com/geode-sdk/sdk.git $GEODE_SDK_DIR/sdk
 
       - name: Configure CMake
         run: |
@@ -54,6 +66,7 @@ jobs:
             -DANDROID_ABI=${{ matrix.config.abi }} \
             -DANDROID_PLATFORM=android-${{ matrix.config.platform }} \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DGEODE_SDK_DIR=$GEODE_SDK_DIR/sdk \
             -DGEODE_TARGET_PLATFORM=${{ matrix.config.name }}
 
       - name: Build
