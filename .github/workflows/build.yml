@@ -35,7 +35,7 @@ jobs:
         with:
           cli: nightly
           sdk: nightly
-
+          
       - name: Configure CMake
         run: |
           cmake -B build ${{ matrix.config.cmake-args }} -DCMAKE_BUILD_TYPE=RelWithDebInfo
