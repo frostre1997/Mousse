@@ -14,14 +14,12 @@ jobs:
       matrix:
         config:
           - name: Android64
-            target: android64
+            os: ubuntu-latest
           - name: Android32
-            target: android32
+            os: ubuntu-latest
 
     name: ${{ matrix.config.name }}
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/geode-sdk/build:latest
+    runs-on: ${{ matrix.config.os }}
 
     steps:
       - name: Checkout
@@ -29,15 +27,24 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build
-        run: |
-          mkdir -p build
-          cd build
-          cmake .. -DGEODE_TARGET_PLATFORM=${{ matrix.config.target }} -DCMAKE_BUILD_TYPE=RelWithDebInfo
-          cmake --build . --config RelWithDebInfo --target package -j $(nproc)
+      # This is the official action that should work
+      - name: Setup Geode
+        uses: geode-sdk/build-geode-mod@main
+        with:
+          target: ${{ matrix.config.name }}
+          cli: latest
+          sdk: latest
 
+      # The action should have set up everything, but if not, try this
+      - name: Build with CMake
+        run: |
+          # Use the Geode CLI to build
+          geode build
+          
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: GeodeMod-${{ matrix.config.name }}
-          path: build/*.geode
+          path: |
+            build/*.geode
+            *.geode
