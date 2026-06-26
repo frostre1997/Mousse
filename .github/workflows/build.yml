@@ -24,25 +24,27 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
 
-    steps:
+        steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Setup Geode SDK
-        uses: geode-sdk/setup-geode@main
-        with:
-          cli: nightly
-          sdk: nightly
-          
+      - name: Install Geode CLI
+        run: |
+          curl -L https://github.com/geode-sdk/geode/releases/latest/download/geode-cli-linux -o geode
+          chmod +x geode
+          ./geode --version
+          # Sposta il CLI in una cartella nel PATH
+          sudo mv geode /usr/local/bin/
+
       - name: Configure CMake
         run: |
           cmake -B build ${{ matrix.config.cmake-args }} -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
       - name: Build
         run: |
-          cmake --build build --config RelWithDebInfo -j $(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)
+          cmake --build build --config RelWithDebInfo -j $(nproc)
 
       - name: Package
         run: |
