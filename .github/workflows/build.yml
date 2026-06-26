@@ -27,24 +27,17 @@ jobs:
         with:
           submodules: recursive
 
-      # This is the official action that should work
       - name: Setup Geode
-        uses: geode-sdk/build-geode-mod@main
+        uses: geode-sdk/setup-geode-mod@v1
         with:
-          target: ${{ matrix.config.name }}
-          cli: latest
-          sdk: latest
+          platform: ${{ matrix.config.name }}
 
-      # The action should have set up everything, but if not, try this
-      - name: Build with CMake
+      - name: Build with Geode CLI
         run: |
-          # Use the Geode CLI to build
-          geode build
-          
+          geode build --platform ${{ matrix.config.name }}
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: GeodeMod-${{ matrix.config.name }}
-          path: |
-            build/*.geode
-            *.geode
+          path: build/*.geode
