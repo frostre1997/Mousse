@@ -1,4 +1,7 @@
 #include "CursorNode.hpp"
+#include <Geode/Geode.hpp>
+
+using namespace geode::prelude;
 
 CursorNode* CursorNode::create() {
     auto ret = new CursorNode();
@@ -13,7 +16,7 @@ CursorNode* CursorNode::create() {
 bool CursorNode::init() {
     if (!CCNode::init()) return false;
 
-    m_visible = false;
+    m_visible = true;  // start visible for testing
     m_cursorPos = CCDirector::sharedDirector()->getWinSize() / 2;
     m_prevTouchPos = CCPointZero;
     m_radius = 15.0f;
@@ -23,10 +26,12 @@ bool CursorNode::init() {
     m_shape = "crosshair";
 
     setContentSize(CCSize(40, 40));
-    CCNode::setVisible(false);
+    setPosition(m_cursorPos);
+    CCNode::setVisible(true);  // force visible
 
     refreshSettings();
-    setPosition(m_cursorPos);
+
+    log::info("CursorNode initialized at pos (%.2f, %.2f)", m_cursorPos.x, m_cursorPos.y);
     return true;
 }
 
@@ -49,7 +54,6 @@ void CursorNode::refreshSettings() {
         m_shape = "crosshair";
     }
 
-    // Show immediately if settings say visible
     CCNode::setVisible(m_visible);
 }
 
@@ -69,6 +73,12 @@ void CursorNode::onExit() {
 }
 
 void CursorNode::draw() {
+    // Log to confirm drawing
+    static int frame = 0;
+    if (frame++ % 60 == 0) {
+        log::info("CursorNode::draw() called, visible = {}", m_visible);
+    }
+
     if (!m_visible) return;
 
     float r = m_radius * m_scale;
