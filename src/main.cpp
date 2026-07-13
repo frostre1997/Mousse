@@ -31,7 +31,8 @@ class $modify(CursorSceneHook, CCScene) {
             if (g_cursor) {
                 g_cursor->setZOrder(9999);
                 scene->addChild(g_cursor);
-                g_cursor->showAfterDelay(0.3f);
+                // Force visible immediately
+                g_cursor->setVisible(true);
             }
         }
         else if (g_cursor->getParent() != scene) {
@@ -39,11 +40,12 @@ class $modify(CursorSceneHook, CCScene) {
             g_cursor->removeFromParentAndCleanup(false);
             scene->addChild(g_cursor);
             g_cursor->release();
+            // Ensure visible
             g_cursor->setVisible(true);
         }
     }
 };
 
 $on_mod(Loaded) {
-    log::info("Mousse mod loaded (relative movement + settings).");
+    log::info("Mousse mod loaded (immediate show, relative movement).");
 }
