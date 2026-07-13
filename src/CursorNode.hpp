@@ -3,7 +3,7 @@
 
 using namespace geode::prelude;
 
-class CursorNode : public CCNode {
+class CursorNode : public CCLayer {
 protected:
     bool m_visible;
     
@@ -13,9 +13,7 @@ public:
     void setVisible(bool visible) override;
     void draw() override;
     
-    // REMOVE onEnter() and onExit() - they cause crashes!
-    // void onEnter() override;
-    // void onExit() override;
+    // CCLayer has these by default - no onEnter/onExit needed!
     
     bool ccTouchBegan(CCTouch* touch, CCEvent* event) override;
     void ccTouchMoved(CCTouch* touch, CCEvent* event) override;
