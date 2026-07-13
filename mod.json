@@ -1,5 +1,8 @@
 {
     "geode": "5.8.1",
+    "gd": {
+        "android": "2.2081"
+    },
     "version": "1.0.0",
     "id": "frostre1997.mouse_on_android",
     "name": "Mousse on Android",
