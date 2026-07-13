@@ -14,6 +14,11 @@ bool CursorNode::init() {
     if (!CCNode::init()) return false;
     m_visible = true;
     setVisible(true);
+    
+    // Enable touch - NO manual dispatcher registration!
+    this->setTouchEnabled(true);
+    this->setTouchPriority(-500);
+    
     return true;
 }
 
@@ -22,19 +27,22 @@ void CursorNode::setVisible(bool visible) {
     CCNode::setVisible(visible);
 }
 
-void CursorNode::onEnter() {
-    CCNode::onEnter();
-    CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, -500, false);
-}
+// COMPLETELY REMOVE onEnter() - causes crash!
+// void CursorNode::onEnter() {
+//     CCNode::onEnter();
+//     CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, -500, false);
+// }
 
-void CursorNode::onExit() {
-    CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
-    CCNode::onExit();
-}
+// COMPLETELY REMOVE onExit() - causes crash!
+// void CursorNode::onExit() {
+//     CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
+//     CCNode::onExit();
+// }
 
 void CursorNode::draw() {
     if (!m_visible) return;
     auto pos = getPosition();
+    
     // Red circle with white crosshair – very visible
     ccDrawColor4B(255, 0, 0, 255);
     glLineWidth(3.0f);
@@ -51,7 +59,7 @@ bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
 
 void CursorNode::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     auto pos = touch->getLocation();
-    auto winSize = CCDirector::sharedDirector()->getWinSize();
+    auto winSize = CCDirector::get()->getWinSize();
     pos.x = std::max(0.0f, std::min(winSize.width, pos.x));
     pos.y = std::max(0.0f, std::min(winSize.height, pos.y));
     setPosition(pos);
