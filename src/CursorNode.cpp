@@ -19,10 +19,14 @@ bool CursorNode::init() {
     return true;
 }
 
+void CursorNode::setVisible(bool visible) {
+    m_visible = visible;
+    CCNode::setVisible(visible);
+}
+
 void CursorNode::draw() {
     if (!m_visible) return;
     auto pos = getPosition();
-    // Draw a red dot with white crosshair
     ccDrawColor4B(255, 0, 0, 255);
     glLineWidth(2.0f);
     ccDrawCircle(pos, 20.0f, 0, 20, false);
