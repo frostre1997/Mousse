@@ -17,34 +17,12 @@ bool CursorNode::init() {
     if (!CCNode::init()) return false;
 
     m_visible = true;
-    auto winSize = CCDirector::sharedDirector()->getWinSize();
-    m_cursorPos = ccp(winSize.width / 2, winSize.height / 2);
-    m_radius = 20.0f;
-
-    m_drawNode = CCDrawNode::create();
-    m_drawNode->setZOrder(100);
-    this->addChild(m_drawNode);
-
-    setPosition(m_cursorPos);
+    m_radius = 30.0f; // larger for visibility
+    setContentSize(CCSize(100, 100));
     CCNode::setVisible(true);
-    this->scheduleUpdate();
 
-    log::info("CursorNode initialized at center.");
+    log::info("CursorNode initialized.");
     return true;
-}
-
-void CursorNode::update(float dt) {
-    if (!m_visible || !m_drawNode) return;
-    m_drawNode->clear();
-
-    float r = m_radius;
-    m_drawNode->drawDot(m_cursorPos, r * 0.5f, ccc4f(1, 1, 1, 1));
-    m_drawNode->drawSegment(ccp(m_cursorPos.x - r, m_cursorPos.y),
-                            ccp(m_cursorPos.x + r, m_cursorPos.y),
-                            2.0f, ccc4f(1, 1, 1, 1));
-    m_drawNode->drawSegment(ccp(m_cursorPos.x, m_cursorPos.y - r),
-                            ccp(m_cursorPos.x, m_cursorPos.y + r),
-                            2.0f, ccc4f(1, 1, 1, 1));
 }
 
 void CursorNode::setVisible(bool visible) {
@@ -62,9 +40,23 @@ void CursorNode::onExit() {
     CCNode::onExit();
 }
 
-void CursorNode::updatePosition(const CCPoint& pos) {
-    m_cursorPos = pos;
-    setPosition(pos);
+void CursorNode::draw() {
+    if (!m_visible) return;
+
+    auto pos = getPosition();
+
+    // Draw a big red dot with white outline
+    ccDrawColor4B(255, 0, 0, 255); // red
+    glLineWidth(4.0f);
+    ccDrawCircle(pos, m_radius, 0, 20, false);
+
+    ccDrawColor4B(255, 255, 255, 255); // white
+    glLineWidth(2.0f);
+    ccDrawCircle(pos, m_radius - 5, 0, 20, false);
+    ccDrawLine(ccp(pos.x - m_radius * 0.7f, pos.y),
+               ccp(pos.x + m_radius * 0.7f, pos.y));
+    ccDrawLine(ccp(pos.x, pos.y - m_radius * 0.7f),
+               ccp(pos.x, pos.y + m_radius * 0.7f));
 }
 
 bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
@@ -72,7 +64,7 @@ bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
 }
 
 void CursorNode::ccTouchMoved(CCTouch* touch, CCEvent* event) {
-    updatePosition(touch->getLocation());
+    setPosition(touch->getLocation());
 }
 
 void CursorNode::ccTouchEnded(CCTouch* touch, CCEvent* event) {}
