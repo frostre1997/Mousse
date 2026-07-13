@@ -23,12 +23,18 @@ class $modify(CursorSceneHook, CCScene) {
             g_cursor = CursorNode::create();
             g_cursor->setZOrder(9999);
             this->addChild(g_cursor);
-            g_cursor->setVisible(false);
+            g_cursor->setVisible(false);  // start hidden
 
-            Loader::get()->queueInMainThread([]() {
-                if (g_cursor) g_cursor->setVisible(true);
-            }, 1.5f);
-        } 
+            // Show after 1.5 seconds using a delayed action
+            auto showAction = CCSequence::create(
+                CCDelayTime::create(1.5f),
+                CCCallFunc::create([&]() {
+                    if (g_cursor) g_cursor->setVisible(true);
+                }),
+                nullptr
+            );
+            g_cursor->runAction(showAction);
+        }
         else if (g_cursor->getParent() != this) {
             g_cursor->retain();
             g_cursor->removeFromParentAndCleanup(false);
