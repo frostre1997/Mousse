@@ -40,5 +40,5 @@ Open an issue on the GitHub repository with:
 - ✅ Geometry Dash 2.2074
 - ✅ Geode 3.4.0+
 - ✅ Android 8.0+ (API 26+)
-- ❌ iOS (not yet supported)
+- ❌ iOS (not implemented yet)
 - ❌ Windows/macOS (unnecessary — native cursor already exists)
