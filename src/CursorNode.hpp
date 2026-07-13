@@ -7,7 +7,12 @@ class CursorNode : public CCNode, public CCTouchDelegate {
 protected:
     bool m_visible;
     CCPoint m_cursorPos;
+    CCPoint m_prevTouchPos;   // for delta calculation
     float m_radius;
+    float m_scale;
+    float m_sensitivity;
+    ccColor4B m_color;
+    std::string m_shape;
 
 public:
     static CursorNode* create();
@@ -21,7 +26,7 @@ public:
     void showAfterDelay(float delay);
     void showMe(CCObject* sender);
 
-    void updatePosition(const CCPoint& pos);
+    void refreshSettings();   // safe, no callbacks
 
     bool ccTouchBegan(CCTouch* touch, CCEvent* event) override;
     void ccTouchMoved(CCTouch* touch, CCEvent* event) override;
