@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-android:
-    name: Build ${{ matrix.platform }}
+    name: ${{ matrix.platform }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -81,7 +81,7 @@ jobs:
       - name: Upload artifact (${{ matrix.platform }})
         uses: actions/upload-artifact@v4
         with:
-          name: ClickBeyondFrames-${{ matrix.platform }}
+          name: Mousse-${{ matrix.platform }}
           path: build-${{ matrix.platform }}/*.geode
           if-no-files-found: error
 
@@ -112,10 +112,10 @@ jobs:
             echo "No .geode files found"
             exit 1
           fi
-          zip -j combined/frostre1997.click-beyond-frames.zip $files
+          zip -j combined/frostre1997.Mousse.zip $files
 
       - name: Upload Packed Artifact
         uses: actions/upload-artifact@v4
         with:
           name: frostre1997.click-beyond-frames
-          path: combined/frostre1997.click-beyond-frames.zip
+          path: combined/frostre1997.Mousse.zip
