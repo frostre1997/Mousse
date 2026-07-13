@@ -7,14 +7,12 @@ class CursorNode : public CCNode, public CCTouchDelegate {
 protected:
     bool m_visible;
     CCPoint m_cursorPos;
-    float m_radius;
-    CCDrawNode* m_drawNode;  // for drawing
+    CCNode* m_visual;  // child node that represents the cursor
 
 public:
     static CursorNode* create();
     bool init() override;
     void setVisible(bool visible) override;
-    void update(float dt) override;  // redraw each frame
 
     void onEnter() override;
     void onExit() override;
