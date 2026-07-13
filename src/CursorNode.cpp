@@ -17,25 +17,35 @@ bool CursorNode::init() {
     if (!CCNode::init()) return false;
 
     m_visible = true;
-    m_cursorPos = CCDirector::sharedDirector()->getWinSize() / 2;
-    m_visual = nullptr;
+    auto winSize = CCDirector::sharedDirector()->getWinSize();
+    m_cursorPos = ccp(winSize.width / 2, winSize.height / 2);
+    m_radius = 20.0f;
 
-    // Create a big "X" label – very visible
-    auto label = CCLabelTTF::create("✚", "Arial", 60);
-    // Or use "+" if the character doesn't render
-    if (!label) {
-        label = CCLabelTTF::create("+", "Arial", 60);
-    }
-    label->setColor(ccc3(255, 0, 0)); // bright red
-    label->setPosition(ccp(0, 0));
-    this->addChild(label);
-    m_visual = label;
+    m_drawNode = CCDrawNode::create();
+    m_drawNode->setZOrder(100);
+    this->addChild(m_drawNode);
 
     setPosition(m_cursorPos);
     CCNode::setVisible(true);
+    this->scheduleUpdate();
 
-    log::info("CursorNode initialized with label.");
+    log::info("CursorNode initialized at center.");
     return true;
+}
+
+void CursorNode::update(float dt) {
+    if (!m_visible || !m_drawNode) return;
+    m_drawNode->clear();
+
+    // Draw a white crosshair + dot
+    float r = m_radius;
+    m_drawNode->drawDot(m_cursorPos, r * 0.5f, ccc4f(1, 1, 1, 1));
+    m_drawNode->drawSegment(ccp(m_cursorPos.x - r, m_cursorPos.y),
+                            ccp(m_cursorPos.x + r, m_cursorPos.y),
+                            2.0f, ccc4f(1, 1, 1, 1));
+    m_drawNode->drawSegment(ccp(m_cursorPos.x, m_cursorPos.y - r),
+                            ccp(m_cursorPos.x, m_cursorPos.y + r),
+                            2.0f, ccc4f(1, 1, 1, 1));
 }
 
 void CursorNode::setVisible(bool visible) {
