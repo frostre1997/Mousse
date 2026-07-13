@@ -1,5 +1,5 @@
 {
-    "geode": "5.8.2",
+    "geode": "5.8.1",
     "gd": {
         "android": "2.2081"
     },
@@ -7,51 +7,8 @@
     "id": "frostre1997.mouse_on_android",
     "name": "Mousse on Android",
     "developer": "frostre1997",
-    "description": "Desktop-style mouse cursor on Android with relative movement.",
-    "tags": ["interface", "input", "android", "mouse", "utility"],
+    "description": "Simple cursor mod.",
+    "tags": ["utility"],
     "dependencies": {},
-    "incompatibilities": {},
-    "settings": {
-        "cursor-size": {
-            "name": "Cursor Size",
-            "type": "float",
-            "default": 1.0,
-            "min": 0.25,
-            "max": 3.0,
-            "description": "Multiplier for cursor size."
-        },
-        "sensitivity": {
-            "name": "Pointer Sensitivity",
-            "type": "float",
-            "default": 1.0,
-            "min": 0.1,
-            "max": 5.0,
-            "description": "How fast the cursor moves."
-        },
-        "shape": {
-            "name": "Cursor Shape",
-            "type": "string",
-            "default": "crosshair",
-            "one-of": ["crosshair", "dot", "arrow"],
-            "description": "Visual style of the cursor."
-        },
-        "color": {
-            "name": "Cursor Color",
-            "type": "string",
-            "default": "#FFFFFF",
-            "description": "Hex color code (e.g., #FF0000)."
-        },
-        "show-cursor": {
-            "name": "Show Cursor",
-            "type": "bool",
-            "default": true,
-            "description": "Show or hide the cursor."
-        },
-        "invert-scroll": {
-            "name": "Invert Scroll",
-            "type": "bool",
-            "default": false,
-            "description": "Reverse scroll wheel direction (requires physical mouse)."
-        }
-    }
+    "incompatibilities": {}
 }
