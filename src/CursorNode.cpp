@@ -26,12 +26,13 @@ bool CursorNode::init() {
     setContentSize(CCSize(40, 40));
     CCNode::setVisible(false);
 
-    refreshSettings(); // load initial settings
+    refreshSettings();
     return true;
 }
 
 void CursorNode::refreshSettings() {
     auto mod = Mod::get();
+    if (!mod) return; // safety
     m_scale = mod->getSettingValue<float>("cursor-size");
     m_visible = mod->getSettingValue<bool>("show-cursor");
 
@@ -54,7 +55,7 @@ void CursorNode::setVisible(bool visible) {
     CCNode::setVisible(visible);
 }
 
-void CursorNode::showMe() {
+void CursorNode::showMe(CCObject* sender) {
     setVisible(true);
 }
 
@@ -68,11 +69,11 @@ void CursorNode::showAfterDelay(float delay) {
 
 void CursorNode::onEnter() {
     CCNode::onEnter();
-    CCDirector::get()->getTouchDispatcher()->addTargetedDelegate(this, -500, false);
+    CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, -500, false);
 }
 
 void CursorNode::onExit() {
-    CCDirector::get()->getTouchDispatcher()->removeDelegate(this);
+    CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
     CCNode::onExit();
 }
 
