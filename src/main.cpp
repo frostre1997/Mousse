@@ -23,17 +23,10 @@ class $modify(CursorSceneHook, CCScene) {
             g_cursor = CursorNode::create();
             g_cursor->setZOrder(9999);
             this->addChild(g_cursor);
-            g_cursor->setVisible(false);  // start hidden
+            g_cursor->setVisible(false);
 
-            // Show after 1.5 seconds using a delayed action
-            auto showAction = CCSequence::create(
-                CCDelayTime::create(1.5f),
-                CCCallFunc::create([&]() {
-                    if (g_cursor) g_cursor->setVisible(true);
-                }),
-                nullptr
-            );
-            g_cursor->runAction(showAction);
+            // Schedule show after 1.5s
+            this->scheduleOnce(schedule_selector(CursorSceneHook::showCursor), 1.5f);
         }
         else if (g_cursor->getParent() != this) {
             g_cursor->retain();
@@ -41,6 +34,10 @@ class $modify(CursorSceneHook, CCScene) {
             this->addChild(g_cursor);
             g_cursor->release();
         }
+    }
+
+    void showCursor(float dt) {
+        if (g_cursor) g_cursor->setVisible(true);
     }
 };
 
