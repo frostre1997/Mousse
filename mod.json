@@ -15,8 +15,8 @@
         "mouse",
         "utility"
     ],
-    "dependencies": [],
-    "incompatibilities": [],
+    "dependencies": {},
+    "incompatibilities": {},
     "settings": {
         "cursor-size": {
             "name": "Cursor Size",
