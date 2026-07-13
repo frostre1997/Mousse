@@ -1,51 +1,49 @@
 #include <Geode/Geode.hpp>
-#include <Geode/modify/CCScene.hpp>
+#include <Geode/modify/MenuLayer.hpp>
 #include "CursorNode.hpp"
 
 using namespace geode::prelude;
 
 CursorNode* g_cursor = nullptr;
 
-class $modify(CursorSceneHook, CCScene) {
-    void onEnter() override {
-        CCScene::onEnter();
-        this->scheduleOnce(schedule_selector(CursorSceneHook::delayedAddCursor), 0.0f);
-    }
+class $modify(MyMenuLayer, MenuLayer) {
+    bool init() {
+        if (!MenuLayer::init()) return false;
 
-    void onExit() override {
-        if (g_cursor && g_cursor->getParent() == this) {
-            g_cursor->retain();
-            g_cursor->removeFromParentAndCleanup(false);
-            g_cursor->release();
-            g_cursor = nullptr;
+        auto winSize = CCDirector::sharedDirector()->getWinSize();
+
+        // 1. Red screen (semi‑transparent) – you can't miss this
+        auto redLayer = CCLayerColor::create(ccc4(255, 0, 0, 150));
+        redLayer->setZOrder(99998);
+        this->addChild(redLayer);
+
+        // 2. Green label
+        auto label = CCLabelBMFont::create("MOUSSE ACTIVE", "bigFont.fnt");
+        if (label) {
+            label->setScale(0.8f);
+            label->setColor(ccc3(0, 255, 0));
+            label->setPosition(ccp(winSize.width / 2, winSize.height / 2 + 100));
+            label->setZOrder(100000);
+            this->addChild(label);
         }
-        CCScene::onExit();
-    }
 
-    void delayedAddCursor(float dt) {
-        auto scene = this;
-        if (!scene) return;
-
+        // 3. White cursor at center
         if (!g_cursor) {
             g_cursor = CursorNode::create();
             if (g_cursor) {
                 g_cursor->setZOrder(99999);
-                scene->addChild(g_cursor);
+                this->addChild(g_cursor);
+                // Force position to center
+                g_cursor->setPosition(ccp(winSize.width / 2, winSize.height / 2));
                 g_cursor->setVisible(true);
-                log::info("Cursor created.");
+                log::info("Cursor created and positioned at center.");
             }
         }
-        else if (g_cursor->getParent() != scene) {
-            g_cursor->retain();
-            g_cursor->removeFromParentAndCleanup(false);
-            scene->addChild(g_cursor);
-            g_cursor->release();
-            g_cursor->setVisible(true);
-            log::info("Cursor moved.");
-        }
+
+        return true;
     }
 };
 
 $on_mod(Loaded) {
-    log::info("Mousse mod loaded.");
+    log::info("Mousse mod loaded (debug with red screen).");
 }
