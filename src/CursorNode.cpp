@@ -13,8 +13,6 @@ CursorNode* CursorNode::create() {
 bool CursorNode::init() {
     if (!CCNode::init()) return false;
     m_visible = true;
-    auto winSize = CCDirector::sharedDirector()->getWinSize();
-    setPosition(ccp(winSize.width / 2, winSize.height / 2));
     setVisible(true);
     return true;
 }
@@ -22,6 +20,16 @@ bool CursorNode::init() {
 void CursorNode::setVisible(bool visible) {
     m_visible = visible;
     CCNode::setVisible(visible);
+}
+
+void CursorNode::onEnter() {
+    CCNode::onEnter();
+    CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, -500, false);
+}
+
+void CursorNode::onExit() {
+    CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
+    CCNode::onExit();
 }
 
 void CursorNode::draw() {
@@ -34,16 +42,6 @@ void CursorNode::draw() {
     glLineWidth(1.0f);
     ccDrawLine(ccp(pos.x - 20, pos.y), ccp(pos.x + 20, pos.y));
     ccDrawLine(ccp(pos.x, pos.y - 20), ccp(pos.x, pos.y + 20));
-}
-
-void CursorNode::onEnter() {
-    CCNode::onEnter();
-    CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, -500, false);
-}
-
-void CursorNode::onExit() {
-    CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
-    CCNode::onExit();
 }
 
 bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
