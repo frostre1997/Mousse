@@ -37,7 +37,6 @@ void CursorNode::update(float dt) {
     if (!m_visible || !m_drawNode) return;
     m_drawNode->clear();
 
-    // Draw a white crosshair + dot
     float r = m_radius;
     m_drawNode->drawDot(m_cursorPos, r * 0.5f, ccc4f(1, 1, 1, 1));
     m_drawNode->drawSegment(ccp(m_cursorPos.x - r, m_cursorPos.y),
