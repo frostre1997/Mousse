@@ -117,5 +117,5 @@ jobs:
       - name: Upload Packed Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: frostre1997.click-beyond-frames
+          name: frostre1997.mosse.zip
           path: combined/frostre1997.Mousse.zip
