@@ -35,13 +35,14 @@ void CursorNode::onExit() {
 void CursorNode::draw() {
     if (!m_visible) return;
     auto pos = getPosition();
+    // Red circle with white crosshair – very visible
     ccDrawColor4B(255, 0, 0, 255);
-    glLineWidth(2.0f);
-    ccDrawCircle(pos, 20.0f, 0, 20, false);
+    glLineWidth(3.0f);
+    ccDrawCircle(pos, 25.0f, 0, 20, false);
     ccDrawColor4B(255, 255, 255, 255);
-    glLineWidth(1.0f);
-    ccDrawLine(ccp(pos.x - 20, pos.y), ccp(pos.x + 20, pos.y));
-    ccDrawLine(ccp(pos.x, pos.y - 20), ccp(pos.x, pos.y + 20));
+    glLineWidth(2.0f);
+    ccDrawLine(ccp(pos.x - 30, pos.y), ccp(pos.x + 30, pos.y));
+    ccDrawLine(ccp(pos.x, pos.y - 30), ccp(pos.x, pos.y + 30));
 }
 
 bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
