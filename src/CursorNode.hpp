@@ -22,7 +22,7 @@ public:
     void onExit() override;
 
     void showAfterDelay(float delay);
-    void showMe();
+    void showMe(CCObject* sender); // now takes a parameter
 
     void refreshSettings();
 
