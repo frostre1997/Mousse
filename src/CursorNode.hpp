@@ -8,9 +8,6 @@ protected:
     bool m_visible;
     CCPoint m_cursorPos;
     float m_radius;
-    float m_scale;
-    ccColor4B m_color;
-    std::string m_shape;
 
 public:
     static CursorNode* create();
@@ -22,12 +19,9 @@ public:
     void onExit() override;
 
     void showAfterDelay(float delay);
-    void showMe(CCObject* sender); // now takes a parameter
-
-    void refreshSettings();
+    void showMe(CCObject* sender);
 
     void updatePosition(const CCPoint& pos);
-    CCPoint getCursorPos() const { return m_cursorPos; }
 
     bool ccTouchBegan(CCTouch* touch, CCEvent* event) override;
     void ccTouchMoved(CCTouch* touch, CCEvent* event) override;
