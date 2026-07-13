@@ -11,33 +11,24 @@ CursorNode* CursorNode::create() {
 }
 
 bool CursorNode::init() {
-    if (!CCNode::init()) return false;
+    // Initialize CCLayer (not CCNode)
+    if (!CCLayer::init()) return false;
+    
     m_visible = true;
     setVisible(true);
     
-    // Enable touch - NO manual dispatcher registration!
-    this->setTouchEnabled(true);
+    // CCLayer already has touch enabled by default
+    // Set priority so we get touch first
     this->setTouchPriority(-500);
+    this->setTouchMode(ccTouchMode::CC_TOUCH_MODE_ONE_BY_ONE);
     
     return true;
 }
 
 void CursorNode::setVisible(bool visible) {
     m_visible = visible;
-    CCNode::setVisible(visible);
+    CCLayer::setVisible(visible);
 }
-
-// COMPLETELY REMOVE onEnter() - causes crash!
-// void CursorNode::onEnter() {
-//     CCNode::onEnter();
-//     CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, -500, false);
-// }
-
-// COMPLETELY REMOVE onExit() - causes crash!
-// void CursorNode::onExit() {
-//     CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
-//     CCNode::onExit();
-// }
 
 void CursorNode::draw() {
     if (!m_visible) return;
