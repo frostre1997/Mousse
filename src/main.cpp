@@ -19,13 +19,18 @@ class $modify(CursorSceneHook, CCScene) {
     }
 
     void ensureCursor() {
+        // Safety: if the scene is being destroyed, don't add cursor
+        if (!this) return;
         if (!g_cursor) {
             g_cursor = CursorNode::create();
-            g_cursor->setZOrder(9999);
-            this->addChild(g_cursor);
-            g_cursor->showAfterDelay(1.5f);
+            if (g_cursor) {
+                g_cursor->setZOrder(9999);
+                this->addChild(g_cursor);
+                g_cursor->showAfterDelay(1.5f);
+            }
         }
         else if (g_cursor->getParent() != this) {
+            // Move the existing cursor to this scene
             g_cursor->retain();
             g_cursor->removeFromParentAndCleanup(false);
             this->addChild(g_cursor);
