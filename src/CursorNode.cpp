@@ -16,45 +16,42 @@ CursorNode* CursorNode::create() {
 bool CursorNode::init() {
     if (!CCNode::init()) return false;
 
-    m_visible = true;  // start visible for testing
+    m_visible = true;
     m_cursorPos = CCDirector::sharedDirector()->getWinSize() / 2;
-    m_prevTouchPos = CCPointZero;
-    m_radius = 15.0f;
-    m_scale = 1.0f;
-    m_sensitivity = 1.0f;
-    m_color = ccc4(255, 255, 255, 255);
-    m_shape = "crosshair";
+    m_radius = 20.0f;
 
-    setContentSize(CCSize(40, 40));
+    // Create a draw node and add it as child
+    m_drawNode = CCDrawNode::create();
+    m_drawNode->setZOrder(100);
+    this->addChild(m_drawNode);
+
     setPosition(m_cursorPos);
-    CCNode::setVisible(true);  // force visible
+    CCNode::setVisible(true);
 
-    refreshSettings();
+    // Schedule update to redraw every frame
+    this->scheduleUpdate();
 
-    log::info("CursorNode initialized at pos (%.2f, %.2f)", m_cursorPos.x, m_cursorPos.y);
+    log::info("CursorNode initialized with CCDrawNode.");
     return true;
 }
 
-void CursorNode::refreshSettings() {
-    auto mod = Mod::get();
-    if (!mod) return;
+void CursorNode::update(float dt) {
+    if (!m_visible || !m_drawNode) return;
 
-    m_scale = mod->getSettingValue<double>("cursor-size");
-    m_sensitivity = mod->getSettingValue<double>("sensitivity");
-    m_visible = mod->getSettingValue<bool>("show-cursor");
+    // Clear previous drawing
+    m_drawNode->clear();
 
-    std::string hex = mod->getSettingValue<std::string>("color");
-    if (hex.empty() || hex[0] != '#') hex = "#FFFFFF";
-    unsigned int r, g, b;
-    sscanf(hex.c_str() + 1, "%02x%02x%02x", &r, &g, &b);
-    m_color = ccc4(r, g, b, 255);
-
-    m_shape = mod->getSettingValue<std::string>("shape");
-    if (m_shape != "crosshair" && m_shape != "dot" && m_shape != "arrow") {
-        m_shape = "crosshair";
-    }
-
-    CCNode::setVisible(m_visible);
+    // Draw a bright red circle with a white border
+    m_drawNode->drawDot(m_cursorPos, m_radius, ccc4f(255, 0, 0, 255));
+    m_drawNode->drawDot(m_cursorPos, m_radius * 0.7f, ccc4f(255, 255, 255, 200));
+    // Also draw a crosshair for fun
+    float r = m_radius * 1.2f;
+    m_drawNode->drawSegment(ccp(m_cursorPos.x - r, m_cursorPos.y),
+                            ccp(m_cursorPos.x + r, m_cursorPos.y),
+                            2.0f, ccc4f(255, 255, 255, 150));
+    m_drawNode->drawSegment(ccp(m_cursorPos.x, m_cursorPos.y - r),
+                            ccp(m_cursorPos.x, m_cursorPos.y + r),
+                            2.0f, ccc4f(255, 255, 255, 150));
 }
 
 void CursorNode::setVisible(bool visible) {
@@ -72,84 +69,18 @@ void CursorNode::onExit() {
     CCNode::onExit();
 }
 
-void CursorNode::draw() {
-    // Log to confirm drawing
-    static int frame = 0;
-    if (frame++ % 60 == 0) {
-        log::info("CursorNode::draw() called, visible = {}", m_visible);
-    }
-
-    if (!m_visible) return;
-
-    float r = m_radius * m_scale;
-    float offset = 2 * m_scale;
-
-    // Shadow
-    ccDrawColor4B(0, 0, 0, 100);
-    glLineWidth(4.0f * m_scale);
-
-    if (m_shape == "crosshair") {
-        ccDrawLine(ccp(m_cursorPos.x - r + offset, m_cursorPos.y + offset),
-                   ccp(m_cursorPos.x + r + offset, m_cursorPos.y + offset));
-        ccDrawLine(ccp(m_cursorPos.x + offset, m_cursorPos.y - r + offset),
-                   ccp(m_cursorPos.x + offset, m_cursorPos.y + r + offset));
-        ccDrawCircle(m_cursorPos + ccp(offset, offset), r, 0, 16, false);
-    }
-    else if (m_shape == "dot") {
-        ccDrawCircle(m_cursorPos + ccp(offset, offset), r * 0.5, 0, 16, true);
-    }
-    else if (m_shape == "arrow") {
-        CCPoint p1 = ccp(m_cursorPos.x + offset, m_cursorPos.y + r + offset);
-        CCPoint p2 = ccp(m_cursorPos.x - r + offset, m_cursorPos.y - r + offset);
-        CCPoint p3 = ccp(m_cursorPos.x + r + offset, m_cursorPos.y - r + offset);
-        ccDrawLine(p1, p2);
-        ccDrawLine(p1, p3);
-        ccDrawLine(p2, p3);
-    }
-
-    // Main drawing
-    ccDrawColor4B(m_color.r, m_color.g, m_color.b, 255);
-    glLineWidth(2.0f * m_scale);
-
-    if (m_shape == "crosshair") {
-        ccDrawLine(ccp(m_cursorPos.x - r, m_cursorPos.y),
-                   ccp(m_cursorPos.x + r, m_cursorPos.y));
-        ccDrawLine(ccp(m_cursorPos.x, m_cursorPos.y - r),
-                   ccp(m_cursorPos.x, m_cursorPos.y + r));
-        ccDrawCircle(m_cursorPos, r, 0, 16, false);
-    }
-    else if (m_shape == "dot") {
-        ccDrawCircle(m_cursorPos, r * 0.5, 0, 16, true);
-    }
-    else if (m_shape == "arrow") {
-        CCPoint p1 = ccp(m_cursorPos.x, m_cursorPos.y + r);
-        CCPoint p2 = ccp(m_cursorPos.x - r, m_cursorPos.y - r);
-        CCPoint p3 = ccp(m_cursorPos.x + r, m_cursorPos.y - r);
-        ccDrawLine(p1, p2);
-        ccDrawLine(p1, p3);
-        ccDrawLine(p2, p3);
-    }
+void CursorNode::updatePosition(const CCPoint& pos) {
+    m_cursorPos = pos;
+    setPosition(pos);
+    // The draw node will redraw on the next update.
 }
 
 bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    m_prevTouchPos = touch->getLocation();
     return true;
 }
 
 void CursorNode::ccTouchMoved(CCTouch* touch, CCEvent* event) {
-    CCPoint currentPos = touch->getLocation();
-    float dx = (currentPos.x - m_prevTouchPos.x) * m_sensitivity;
-    float dy = (currentPos.y - m_prevTouchPos.y) * m_sensitivity;
-
-    m_cursorPos.x += dx;
-    m_cursorPos.y += dy;
-
-    auto winSize = CCDirector::sharedDirector()->getWinSize();
-    m_cursorPos.x = std::max(0.0f, std::min(winSize.width, m_cursorPos.x));
-    m_cursorPos.y = std::max(0.0f, std::min(winSize.height, m_cursorPos.y));
-
-    setPosition(m_cursorPos);
-    m_prevTouchPos = currentPos;
+    updatePosition(touch->getLocation());
 }
 
 void CursorNode::ccTouchEnded(CCTouch* touch, CCEvent* event) {}
