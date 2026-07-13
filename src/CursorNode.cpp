@@ -20,7 +20,6 @@ bool CursorNode::init() {
     m_cursorPos = CCPointZero;
     m_radius = 15.0f;
     m_scale = 1.0f;
-    m_sensitivity = 1.0f;
     m_color = ccc4(255, 255, 255, 255);
     m_shape = "crosshair";
 
@@ -34,12 +33,10 @@ bool CursorNode::init() {
 void CursorNode::refreshSettings() {
     auto mod = Mod::get();
     m_scale = mod->getSettingValue<float>("cursor-size");
-    m_sensitivity = mod->getSettingValue<float>("sensitivity");
     m_visible = mod->getSettingValue<bool>("show-cursor");
-    // color: parse hex to ccColor4B
+
     std::string hex = mod->getSettingValue<std::string>("color");
     if (hex.empty() || hex[0] != '#') hex = "#FFFFFF";
-    // parse RGB
     unsigned int r, g, b;
     sscanf(hex.c_str() + 1, "%02x%02x%02x", &r, &g, &b);
     m_color = ccc4(r, g, b, 255);
@@ -49,16 +46,12 @@ void CursorNode::refreshSettings() {
         m_shape = "crosshair";
     }
 
-    // Also update visibility
     CCNode::setVisible(m_visible);
-    // Force redraw
-    setNeedRedraw();
 }
 
 void CursorNode::setVisible(bool visible) {
     m_visible = visible;
     CCNode::setVisible(visible);
-    setNeedRedraw();
 }
 
 void CursorNode::showMe() {
@@ -76,14 +69,6 @@ void CursorNode::showAfterDelay(float delay) {
 void CursorNode::onEnter() {
     CCNode::onEnter();
     CCDirector::get()->getTouchDispatcher()->addTargetedDelegate(this, -500, false);
-    // Listen to setting changes to refresh
-    auto mod = Mod::get();
-    mod->registerSettingChangedCallback("cursor-size", [this](float) { refreshSettings(); });
-    mod->registerSettingChangedCallback("sensitivity", [this](float) { refreshSettings(); });
-    mod->registerSettingChangedCallback("show-cursor", [this](bool) { refreshSettings(); });
-    mod->registerSettingChangedCallback("color", [this](std::string) { refreshSettings(); });
-    mod->registerSettingChangedCallback("shape", [this](std::string) { refreshSettings(); });
-    // Note: invert-scroll we'll handle separately if we add scrolling
 }
 
 void CursorNode::onExit() {
@@ -94,34 +79,24 @@ void CursorNode::onExit() {
 void CursorNode::draw() {
     if (!m_visible) return;
 
-    // Scale everything
     float r = m_radius * m_scale;
-    float offset = 2 * m_scale; // shadow offset
+    float offset = 2 * m_scale;
 
-    // Setup color
-    ccDrawColor4B(m_color.r, m_color.g, m_color.b, 255);
-
-    // Shadow (offset and darker)
+    // Shadow
     ccDrawColor4B(0, 0, 0, 100);
     glLineWidth(4.0f * m_scale);
 
     if (m_shape == "crosshair") {
-        // Draw crosshair with circle
-        ccDrawLine(
-            ccp(m_cursorPos.x - r + offset, m_cursorPos.y + offset),
-            ccp(m_cursorPos.x + r + offset, m_cursorPos.y + offset)
-        );
-        ccDrawLine(
-            ccp(m_cursorPos.x + offset, m_cursorPos.y - r + offset),
-            ccp(m_cursorPos.x + offset, m_cursorPos.y + r + offset)
-        );
+        ccDrawLine(ccp(m_cursorPos.x - r + offset, m_cursorPos.y + offset),
+                   ccp(m_cursorPos.x + r + offset, m_cursorPos.y + offset));
+        ccDrawLine(ccp(m_cursorPos.x + offset, m_cursorPos.y - r + offset),
+                   ccp(m_cursorPos.x + offset, m_cursorPos.y + r + offset));
         ccDrawCircle(m_cursorPos + ccp(offset, offset), r, 0, 16, false);
     }
     else if (m_shape == "dot") {
         ccDrawCircle(m_cursorPos + ccp(offset, offset), r * 0.5, 0, 16, true);
     }
     else if (m_shape == "arrow") {
-        // Simple arrow: triangle pointing up
         CCPoint p1 = ccp(m_cursorPos.x + offset, m_cursorPos.y + r + offset);
         CCPoint p2 = ccp(m_cursorPos.x - r + offset, m_cursorPos.y - r + offset);
         CCPoint p3 = ccp(m_cursorPos.x + r + offset, m_cursorPos.y - r + offset);
@@ -130,19 +105,15 @@ void CursorNode::draw() {
         ccDrawLine(p2, p3);
     }
 
-    // Main drawing (same as above but with user color)
+    // Main drawing
     ccDrawColor4B(m_color.r, m_color.g, m_color.b, 255);
     glLineWidth(2.0f * m_scale);
 
     if (m_shape == "crosshair") {
-        ccDrawLine(
-            ccp(m_cursorPos.x - r, m_cursorPos.y),
-            ccp(m_cursorPos.x + r, m_cursorPos.y)
-        );
-        ccDrawLine(
-            ccp(m_cursorPos.x, m_cursorPos.y - r),
-            ccp(m_cursorPos.x, m_cursorPos.y + r)
-        );
+        ccDrawLine(ccp(m_cursorPos.x - r, m_cursorPos.y),
+                   ccp(m_cursorPos.x + r, m_cursorPos.y));
+        ccDrawLine(ccp(m_cursorPos.x, m_cursorPos.y - r),
+                   ccp(m_cursorPos.x, m_cursorPos.y + r));
         ccDrawCircle(m_cursorPos, r, 0, 16, false);
     }
     else if (m_shape == "dot") {
@@ -161,21 +132,11 @@ void CursorNode::draw() {
 void CursorNode::updatePosition(const CCPoint& pos) {
     m_cursorPos = pos;
     setPosition(pos);
-    setNeedRedraw();
 }
 
-bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    return true;
-}
-
+bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) { return true; }
 void CursorNode::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     updatePosition(touch->getLocation());
 }
-
-void CursorNode::ccTouchEnded(CCTouch* touch, CCEvent* event) {
-    // nothing
-}
-
-void CursorNode::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
-    // nothing
-}
+void CursorNode::ccTouchEnded(CCTouch* touch, CCEvent* event) {}
+void CursorNode::ccTouchCancelled(CCTouch* touch, CCEvent* event) {}
