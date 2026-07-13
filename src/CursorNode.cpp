@@ -13,13 +13,11 @@ CursorNode* CursorNode::create() {
 bool CursorNode::init() {
     if (!CCNode::init()) return false;
 
-    m_visible = false;          // Hidden at startup
+    m_visible = false;
     m_cursorPos = CCPointZero;
     m_radius = 15.0f;
 
     setContentSize(CCSize(40, 40));
-    setTouchEnabled(true);      // Enable touch listening
-    setTouchMode(kCCTouchesOneByOne);
 
     return true;
 }
@@ -29,10 +27,21 @@ void CursorNode::setVisible(bool visible) {
     CCNode::setVisible(visible);
 }
 
+void CursorNode::onEnter() {
+    CCNode::onEnter();
+    // Register as targeted delegate with low priority, not swallowing touches
+    CCDirector::get()->getTouchDispatcher()->addTargetedDelegate(this, -500, false);
+}
+
+void CursorNode::onExit() {
+    CCDirector::get()->getTouchDispatcher()->removeDelegate(this);
+    CCNode::onExit();
+}
+
 void CursorNode::draw() {
     if (!m_visible) return;
 
-    // Shadow (offset)
+    // Shadow
     ccDrawColor4B(0, 0, 0, 100);
     glLineWidth(4.0f);
     ccDrawLine(
@@ -64,13 +73,8 @@ void CursorNode::updatePosition(const CCPoint& pos) {
     setPosition(pos);
 }
 
-void CursorNode::registerWithTouchDispatcher() {
-    // Priority -500, and `false` means we do NOT swallow touches
-    CCDirector::get()->getTouchDispatcher()->addTargetedDelegate(this, -500, false);
-}
-
 bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    return true; // We want to receive move/end events
+    return true; // we want to receive move/end
 }
 
 void CursorNode::ccTouchMoved(CCTouch* touch, CCEvent* event) {
@@ -79,9 +83,9 @@ void CursorNode::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 }
 
 void CursorNode::ccTouchEnded(CCTouch* touch, CCEvent* event) {
-    // Nothing – game gets the click because we don't swallow
+    // do nothing
 }
 
 void CursorNode::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
-    // Nothing
+    // do nothing
 }
