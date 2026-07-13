@@ -1,91 +1,38 @@
-#include "CursorNode.hpp"
+#pragma once
+#include <Geode/Geode.hpp>
 
-CursorNode* CursorNode::create() {
-    auto ret = new CursorNode();
-    if (ret && ret->init()) {
-        ret->autorelease();
-        return ret;
-    }
-    CC_SAFE_DELETE(ret);
-    return nullptr;
-}
+using namespace geode::prelude;
 
-bool CursorNode::init() {
-    if (!CCNode::init()) return false;
+class CursorNode : public CCNode, public CCTouchDelegate {
+protected:
+    bool m_visible;
+    CCPoint m_cursorPos;
+    float m_radius;
+    float m_scale;            // size multiplier
+    float m_sensitivity;      // not used yet (for relative movement)
+    ccColor4B m_color;        // color from hex
+    std::string m_shape;      // "crosshair", "dot", "arrow"
 
-    m_visible = false;
-    m_cursorPos = CCPointZero;
-    m_radius = 15.0f;
+public:
+    static CursorNode* create();
+    bool init() override;
+    void setVisible(bool visible) override;
+    void draw() override;
 
-    setContentSize(CCSize(40, 40));
+    void onEnter() override;
+    void onExit() override;
 
-    return true;
-}
+    void showAfterDelay(float delay);
+    void showMe();
 
-void CursorNode::setVisible(bool visible) {
-    m_visible = visible;
-    CCNode::setVisible(visible);
-}
+    // Called when settings change to update stored values
+    void refreshSettings();
 
-void CursorNode::onEnter() {
-    CCNode::onEnter();
-    // Register as targeted delegate with low priority, not swallowing touches
-    CCDirector::get()->getTouchDispatcher()->addTargetedDelegate(this, -500, false);
-}
+    void updatePosition(const CCPoint& pos);
+    CCPoint getCursorPos() const { return m_cursorPos; }
 
-void CursorNode::onExit() {
-    CCDirector::get()->getTouchDispatcher()->removeDelegate(this);
-    CCNode::onExit();
-}
-
-void CursorNode::draw() {
-    if (!m_visible) return;
-
-    // Shadow
-    ccDrawColor4B(0, 0, 0, 100);
-    glLineWidth(4.0f);
-    ccDrawLine(
-        ccp(m_cursorPos.x - m_radius + 2, m_cursorPos.y + 2),
-        ccp(m_cursorPos.x + m_radius + 2, m_cursorPos.y + 2)
-    );
-    ccDrawLine(
-        ccp(m_cursorPos.x + 2, m_cursorPos.y - m_radius + 2),
-        ccp(m_cursorPos.x + 2, m_cursorPos.y + m_radius + 2)
-    );
-    ccDrawCircle(m_cursorPos + ccp(2, 2), m_radius, 0, 16, false);
-
-    // Main white
-    ccDrawColor4B(255, 255, 255, 255);
-    glLineWidth(2.0f);
-    ccDrawLine(
-        ccp(m_cursorPos.x - m_radius, m_cursorPos.y),
-        ccp(m_cursorPos.x + m_radius, m_cursorPos.y)
-    );
-    ccDrawLine(
-        ccp(m_cursorPos.x, m_cursorPos.y - m_radius),
-        ccp(m_cursorPos.x, m_cursorPos.y + m_radius)
-    );
-    ccDrawCircle(m_cursorPos, m_radius, 0, 16, false);
-}
-
-void CursorNode::updatePosition(const CCPoint& pos) {
-    m_cursorPos = pos;
-    setPosition(pos);
-}
-
-bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    return true; // we want to receive move/end
-}
-
-void CursorNode::ccTouchMoved(CCTouch* touch, CCEvent* event) {
-    auto pos = touch->getLocation();
-    updatePosition(pos);
-}
-
-void CursorNode::ccTouchEnded(CCTouch* touch, CCEvent* event) {
-    // do nothing
-}
-
-void CursorNode::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
-    // do nothing
-}
+    bool ccTouchBegan(CCTouch* touch, CCEvent* event) override;
+    void ccTouchMoved(CCTouch* touch, CCEvent* event) override;
+    void ccTouchEnded(CCTouch* touch, CCEvent* event) override;
+    void ccTouchCancelled(CCTouch* touch, CCEvent* event) override;
+};
