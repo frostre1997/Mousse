@@ -10,7 +10,7 @@ class $modify(MyMenuLayer, MenuLayer) {
     bool init() {
         if (!MenuLayer::init()) return false;
 
-        auto winSize = CCDirector::sharedDirector()->getWinSize();
+        auto winSize = CCDirector::get()->getWinSize();
 
         // 1. Full‑screen red layer – you will definitely see this
         auto redLayer = CCLayerColor::create(ccc4(255, 0, 0, 150));
