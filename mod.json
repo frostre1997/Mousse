@@ -7,57 +7,8 @@
     "id": "frostre1997.mouse_on_android",
     "name": "Mousse on Android",
     "developer": "frostre1997",
-    "description": "Enables desktop-style mouse cursor and pointer input on Android devices for Geometry Dash, allowing use of external mice or trackpads.",
-    "tags": [
-        "interface",
-        "input",
-        "android",
-        "mouse",
-        "utility"
-    ],
+    "description": "Desktop-style mouse cursor on Android.",
+    "tags": ["interface", "input", "android", "mouse", "utility"],
     "dependencies": {},
-    "incompatibilities": {},
-    "settings": {
-        "cursor-size": {
-            "name": "Cursor Size",
-            "description": "Multiplier for the custom mouse cursor size",
-            "type": "float",
-            "default": 1.0,
-            "min": 0.25,
-            "max": 3.0
-        },
-        "sensitivity": {
-            "name": "Pointer Sensitivity",
-            "description": "Mouse pointer speed multiplier",
-            "type": "float",
-            "default": 1.0,
-            "min": 0.1,
-            "max": 5.0
-        },
-        "show-cursor": {
-            "name": "Show Cursor",
-            "description": "Toggle the custom mouse cursor on/off",
-            "type": "bool",
-            "default": true
-        },
-        "invert-scroll": {
-            "name": "Invert Scroll Direction",
-            "description": "Reverse the scroll wheel direction",
-            "type": "bool",
-            "default": false
-        },
-        "color": {
-            "name": "Cursor Color",
-            "description": "Color of the cursor (hex, e.g. #FF0000 for red)",
-            "type": "string",
-            "default": "#FFFFFF"
-        },
-        "shape": {
-            "name": "Cursor Shape",
-            "description": "Style of the cursor",
-            "type": "string",
-            "default": "crosshair",
-            "one-of": ["crosshair", "dot", "arrow"]
-        }
-    }
+    "incompatibilities": {}
 }
