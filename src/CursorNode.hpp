@@ -8,10 +8,9 @@ protected:
     bool m_visible;
     CCPoint m_cursorPos;
     float m_radius;
-    float m_scale;            // size multiplier
-    float m_sensitivity;      // not used yet (for relative movement)
-    ccColor4B m_color;        // color from hex
-    std::string m_shape;      // "crosshair", "dot", "arrow"
+    float m_scale;
+    ccColor4B m_color;
+    std::string m_shape;
 
 public:
     static CursorNode* create();
@@ -25,7 +24,6 @@ public:
     void showAfterDelay(float delay);
     void showMe();
 
-    // Called when settings change to update stored values
     void refreshSettings();
 
     void updatePosition(const CCPoint& pos);
