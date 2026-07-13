@@ -1,7 +1,4 @@
 #include "CursorNode.hpp"
-#include <Geode/Geode.hpp>
-
-using namespace geode::prelude;
 
 CursorNode* CursorNode::create() {
     auto ret = new CursorNode();
@@ -15,19 +12,24 @@ CursorNode* CursorNode::create() {
 
 bool CursorNode::init() {
     if (!CCNode::init()) return false;
-
     m_visible = true;
-    m_radius = 30.0f; // larger for visibility
-    setContentSize(CCSize(100, 100));
-    CCNode::setVisible(true);
-
-    log::info("CursorNode initialized.");
+    auto winSize = CCDirector::sharedDirector()->getWinSize();
+    setPosition(ccp(winSize.width / 2, winSize.height / 2));
+    setVisible(true);
     return true;
 }
 
-void CursorNode::setVisible(bool visible) {
-    m_visible = visible;
-    CCNode::setVisible(visible);
+void CursorNode::draw() {
+    if (!m_visible) return;
+    auto pos = getPosition();
+    // Draw a red dot with white crosshair
+    ccDrawColor4B(255, 0, 0, 255);
+    glLineWidth(2.0f);
+    ccDrawCircle(pos, 20.0f, 0, 20, false);
+    ccDrawColor4B(255, 255, 255, 255);
+    glLineWidth(1.0f);
+    ccDrawLine(ccp(pos.x - 20, pos.y), ccp(pos.x + 20, pos.y));
+    ccDrawLine(ccp(pos.x, pos.y - 20), ccp(pos.x, pos.y + 20));
 }
 
 void CursorNode::onEnter() {
@@ -40,31 +42,16 @@ void CursorNode::onExit() {
     CCNode::onExit();
 }
 
-void CursorNode::draw() {
-    if (!m_visible) return;
-
-    auto pos = getPosition();
-
-    // Draw a big red dot with white outline
-    ccDrawColor4B(255, 0, 0, 255); // red
-    glLineWidth(4.0f);
-    ccDrawCircle(pos, m_radius, 0, 20, false);
-
-    ccDrawColor4B(255, 255, 255, 255); // white
-    glLineWidth(2.0f);
-    ccDrawCircle(pos, m_radius - 5, 0, 20, false);
-    ccDrawLine(ccp(pos.x - m_radius * 0.7f, pos.y),
-               ccp(pos.x + m_radius * 0.7f, pos.y));
-    ccDrawLine(ccp(pos.x, pos.y - m_radius * 0.7f),
-               ccp(pos.x, pos.y + m_radius * 0.7f));
-}
-
 bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
     return true;
 }
 
 void CursorNode::ccTouchMoved(CCTouch* touch, CCEvent* event) {
-    setPosition(touch->getLocation());
+    auto pos = touch->getLocation();
+    auto winSize = CCDirector::sharedDirector()->getWinSize();
+    pos.x = std::max(0.0f, std::min(winSize.width, pos.x));
+    pos.y = std::max(0.0f, std::min(winSize.height, pos.y));
+    setPosition(pos);
 }
 
 void CursorNode::ccTouchEnded(CCTouch* touch, CCEvent* event) {}
