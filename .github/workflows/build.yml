@@ -22,37 +22,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install Geode CLI
-        run: |
-          # 1. Fetch the list of assets from the latest release
-          ASSETS=$(curl -s https://api.github.com/repos/geode-sdk/cli/releases/latest | jq -r '.assets[].name')
-          echo "Available assets:"
-          echo "$ASSETS"
-          
-          # 2. Select the Linux x86_64 binary
-          ASSET_NAME=$(echo "$ASSETS" | grep -E 'linux.*x86_64|linux.*amd64' | head -1)
-          if [ -z "$ASSET_NAME" ]; then
-            # fallback: any Linux binary
-            ASSET_NAME=$(echo "$ASSETS" | grep -i linux | head -1)
-          fi
-          echo "Selected asset: $ASSET_NAME"
-          
-          # 3. Get the download URL
-          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/geode-sdk/cli/releases/latest | \
-            jq -r --arg name "$ASSET_NAME" '.assets[] | select(.name == $name) | .browser_download_url')
-          echo "Download URL: $DOWNLOAD_URL"
-          
-          # 4. Download and install
-          curl -L "$DOWNLOAD_URL" -o geode
-          chmod +x geode
-          sudo mv geode /usr/local/bin/
-          
-          # 5. Verify the binary
-          file /usr/local/bin/geode
-          /usr/local/bin/geode --version || echo "Binary failed to run"
-
-      - name: Install SDK
-        run: geode sdk install nightly
+      - name: Setup Geode SDK
+        uses: geode-sdk/setup-geode@v1
+        with:
+          version: nightly
+          platform: ${{ matrix.platform }}
 
       - name: Build
         run: geode build --platform ${{ matrix.platform }}
