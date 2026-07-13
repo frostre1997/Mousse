@@ -7,38 +7,43 @@ using namespace geode::prelude;
 CursorNode* g_cursor = nullptr;
 
 class $modify(CursorSceneHook, CCScene) {
-    bool init() {
-        if (!CCScene::init()) return false;
-        ensureCursor();
-        return true;
-    }
-
-    void onEnter() {
+    void onEnter() override {
         CCScene::onEnter();
-        ensureCursor();
+        this->scheduleOnce(schedule_selector(CursorSceneHook::delayedManageCursor), 0.0f);
     }
 
-    void ensureCursor() {
-        // Safety: if the scene is being destroyed, don't add cursor
-        if (!this) return;
+    void onExit() override {
+        if (g_cursor && g_cursor->getParent() == this) {
+            g_cursor->retain();
+            g_cursor->removeFromParentAndCleanup(false);
+            g_cursor->release();
+            g_cursor = nullptr;
+        }
+        CCScene::onExit();
+    }
+
+    void delayedManageCursor(float dt) {
+        auto scene = this;
+        if (!scene) return;
+
         if (!g_cursor) {
             g_cursor = CursorNode::create();
             if (g_cursor) {
                 g_cursor->setZOrder(9999);
-                this->addChild(g_cursor);
-                g_cursor->showAfterDelay(1.5f);
+                scene->addChild(g_cursor);
+                g_cursor->showAfterDelay(0.3f);
             }
         }
-        else if (g_cursor->getParent() != this) {
-            // Move the existing cursor to this scene
+        else if (g_cursor->getParent() != scene) {
             g_cursor->retain();
             g_cursor->removeFromParentAndCleanup(false);
-            this->addChild(g_cursor);
+            scene->addChild(g_cursor);
             g_cursor->release();
+            g_cursor->setVisible(true);
         }
     }
 };
 
 $on_mod(Loaded) {
-    log::info("Mouse on Android mod loaded. Cursor will appear in 1.5s.");
+    log::info("Mousse mod loaded (relative movement + settings).");
 }
