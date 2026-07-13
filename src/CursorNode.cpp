@@ -14,7 +14,7 @@ bool CursorNode::init() {
     if (!CCNode::init()) return false;
 
     m_visible = false;
-    m_cursorPos = CCDirector::sharedDirector()->getWinSize() / 2; // center
+    m_cursorPos = CCDirector::sharedDirector()->getWinSize() / 2;
     m_prevTouchPos = CCPointZero;
     m_radius = 15.0f;
     m_scale = 1.0f;
@@ -25,7 +25,7 @@ bool CursorNode::init() {
     setContentSize(CCSize(40, 40));
     CCNode::setVisible(false);
 
-    refreshSettings(); // load settings once
+    refreshSettings();
     setPosition(m_cursorPos);
     return true;
 }
@@ -49,24 +49,13 @@ void CursorNode::refreshSettings() {
         m_shape = "crosshair";
     }
 
+    // Show immediately if settings say visible
     CCNode::setVisible(m_visible);
 }
 
 void CursorNode::setVisible(bool visible) {
     m_visible = visible;
     CCNode::setVisible(visible);
-}
-
-void CursorNode::showMe(CCObject* sender) {
-    setVisible(true);
-}
-
-void CursorNode::showAfterDelay(float delay) {
-    this->runAction(CCSequence::create(
-        CCDelayTime::create(delay),
-        CCCallFunc::create(this, callfunc_selector(CursorNode::showMe)),
-        nullptr
-    ));
 }
 
 void CursorNode::onEnter() {
@@ -132,7 +121,6 @@ void CursorNode::draw() {
     }
 }
 
-// The magic: RELATIVE MOVEMENT
 bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
     m_prevTouchPos = touch->getLocation();
     return true;
@@ -143,11 +131,9 @@ void CursorNode::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     float dx = (currentPos.x - m_prevTouchPos.x) * m_sensitivity;
     float dy = (currentPos.y - m_prevTouchPos.y) * m_sensitivity;
 
-    // Apply relative movement
     m_cursorPos.x += dx;
     m_cursorPos.y += dy;
 
-    // Clamp to screen bounds so it doesn't fly off
     auto winSize = CCDirector::sharedDirector()->getWinSize();
     m_cursorPos.x = std::max(0.0f, std::min(winSize.width, m_cursorPos.x));
     m_cursorPos.y = std::max(0.0f, std::min(winSize.height, m_cursorPos.y));
