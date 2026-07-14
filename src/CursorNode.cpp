@@ -20,7 +20,7 @@ bool CursorNode::init() {
     // CCLayer already has touch enabled by default
     // Set priority so we get touch first
     this->setTouchPriority(-500);
-    this->setTouchMode(ccTouchesMode::kCCTouchesModeOneByOne);
+    this->setTouchMode(ccTouchesMode::kCCTouchesOneByOne);
     
     return true;
 }
