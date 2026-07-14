@@ -6,7 +6,7 @@ using namespace geode::prelude;
 class CursorNode : public CCLayer {
 protected:
     bool m_visible;
-    
+
 public:
     static CursorNode* create();
     bool init() override;
