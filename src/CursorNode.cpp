@@ -11,14 +11,9 @@ CursorNode* CursorNode::create() {
 }
 
 bool CursorNode::init() {
-    // Initialize CCLayer
     if (!CCLayer::init()) return false;
-    
     m_visible = true;
     setVisible(true);
-    
-    log::info("[Mousse] CursorNode initialized!");
-    
     return true;
 }
 
@@ -29,14 +24,13 @@ void CursorNode::setVisible(bool visible) {
 
 void CursorNode::draw() {
     if (!m_visible) return;
-    
+
     auto pos = getPosition();
-    
-    // Red circle with white crosshair – very visible
+
     ccDrawColor4B(255, 0, 0, 255);
     glLineWidth(3.0f);
     ccDrawCircle(pos, 25.0f, 0, 20, false);
-    
+
     ccDrawColor4B(255, 255, 255, 255);
     glLineWidth(2.0f);
     ccDrawLine(ccp(pos.x - 30, pos.y), ccp(pos.x + 30, pos.y));
