@@ -21,8 +21,7 @@ bool CursorNode::init() {
     this->setTouchPriority(-500);
     this->setTouchMode(ccTouchesMode::kCCTouchesOneByOne);
     
-    // Enable OpenGL drawing
-    this->setIsRelativeAnchorPoint(false);
+    // REMOVED: setIsRelativeAnchorPoint - doesn't exist!
     
     log::info("[Mousse] CursorNode initialized!");
     
