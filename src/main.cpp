@@ -12,7 +12,7 @@ class $modify(MyMenuLayer, MenuLayer) {
 
         auto winSize = CCDirector::get()->getWinSize();
 
-        // Remove old cursor if it exists (from previous MenuLayer instance)
+        // Remove old cursor if it exists
         if (g_cursor) {
             g_cursor->removeFromParentAndCleanup(true);
             g_cursor = nullptr;
@@ -21,7 +21,7 @@ class $modify(MyMenuLayer, MenuLayer) {
         // Create NEW cursor
         g_cursor = CursorNode::create();
         if (g_cursor) {
-            g_cursor->setZOrder(1000);  // High Z-order so it's on top
+            g_cursor->setZOrder(1000);
             g_cursor->setPosition(ccp(winSize.width / 2, winSize.height / 2));
             g_cursor->setVisible(true);
             this->addChild(g_cursor);
@@ -29,10 +29,43 @@ class $modify(MyMenuLayer, MenuLayer) {
             log::info("[Mousse] Cursor created at: {}x{}", winSize.width/2, winSize.height/2);
         }
 
+        // Enable touch on this layer so we can track touches
+        this->setTouchEnabled(true);
+        this->setTouchPriority(-1000);  // High priority
+        
         return true;
     }
     
-    // Add this to handle when layer is shown again
+    // Track touches on MenuLayer and move the cursor
+    bool ccTouchBegan(CCTouch* touch, CCEvent* event) {
+        if (g_cursor) {
+            auto pos = touch->getLocation();
+            g_cursor->setPosition(pos);
+            log::info("[Mousse] Touch began - moving cursor to: {}x{}", pos.x, pos.y);
+        }
+        return MenuLayer::ccTouchBegan(touch, event);  // Pass to original
+    }
+    
+    void ccTouchMoved(CCTouch* touch, CCEvent* event) {
+        if (g_cursor) {
+            auto pos = touch->getLocation();
+            g_cursor->setPosition(pos);
+            log::info("[Mousse] Touch moved - cursor at: {}x{}", pos.x, pos.y);
+        }
+        MenuLayer::ccTouchMoved(touch, event);  // Pass to original
+    }
+    
+    void ccTouchEnded(CCTouch* touch, CCEvent* event) {
+        log::info("[Mousse] Touch ended");
+        MenuLayer::ccTouchEnded(touch, event);  // Pass to original
+    }
+    
+    void ccTouchCancelled(CCTouch* touch, CCEvent* event) {
+        log::info("[Mousse] Touch cancelled");
+        MenuLayer::ccTouchCancelled(touch, event);  // Pass to original
+    }
+    
+    // Handle returning from online
     void onEnter() override {
         MenuLayer::onEnter();
         log::info("[Mousse] MenuLayer onEnter called");
@@ -40,7 +73,6 @@ class $modify(MyMenuLayer, MenuLayer) {
         // Make sure cursor is visible when returning
         if (g_cursor) {
             g_cursor->setVisible(true);
-            g_cursor->setTouchEnabled(true);
         }
     }
 };
