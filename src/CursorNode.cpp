@@ -17,13 +17,15 @@ bool CursorNode::init() {
     m_visible = true;
     setVisible(true);
     
-    // Set touch priority
-    this->setTouchPriority(-500);
+    // IMPORTANT: Enable touch and set priority
+    this->setTouchEnabled(true);
+    this->setTouchPriority(-1000);  // Very high priority (-1000)
     this->setTouchMode(ccTouchesMode::kCCTouchesOneByOne);
     
-    // REMOVED: setIsRelativeAnchorPoint - doesn't exist!
+    // Important: Allow touches even if parent blocks them
+    this->setSwallowTouches(false);
     
-    log::info("[Mousse] CursorNode initialized!");
+    log::info("[Mousse] CursorNode initialized with touch enabled!");
     
     return true;
 }
@@ -34,13 +36,9 @@ void CursorNode::setVisible(bool visible) {
 }
 
 void CursorNode::draw() {
-    if (!m_visible) {
-        log::info("[Mousse] Cursor is hidden, skipping draw");
-        return;
-    }
+    if (!m_visible) return;
     
     auto pos = getPosition();
-    log::info("[Mousse] Drawing cursor at position: {}x{}", pos.x, pos.y);
     
     // Red circle with white crosshair – very visible
     ccDrawColor4B(255, 0, 0, 255);
@@ -54,8 +52,8 @@ void CursorNode::draw() {
 }
 
 bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    log::info("[Mousse] Touch began!");
-    return true;
+    log::info("[Mousse] Touch BEGAN at: {}x{}", touch->getLocation().x, touch->getLocation().y);
+    return true;  // Accept the touch
 }
 
 void CursorNode::ccTouchMoved(CCTouch* touch, CCEvent* event) {
@@ -64,13 +62,13 @@ void CursorNode::ccTouchMoved(CCTouch* touch, CCEvent* event) {
     pos.x = std::max(0.0f, std::min(winSize.width, pos.x));
     pos.y = std::max(0.0f, std::min(winSize.height, pos.y));
     setPosition(pos);
-    log::info("[Mousse] Touch moved to: {}x{}", pos.x, pos.y);
+    log::info("[Mousse] Touch MOVED to: {}x{}", pos.x, pos.y);
 }
 
 void CursorNode::ccTouchEnded(CCTouch* touch, CCEvent* event) {
-    log::info("[Mousse] Touch ended");
+    log::info("[Mousse] Touch ENDED");
 }
 
 void CursorNode::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
-    log::info("[Mousse] Touch cancelled");
+    log::info("[Mousse] Touch CANCELLED");
 }
