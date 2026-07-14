@@ -17,15 +17,7 @@ bool CursorNode::init() {
     m_visible = true;
     setVisible(true);
     
-    // IMPORTANT: Enable touch and set priority
-    this->setTouchEnabled(true);
-    this->setTouchPriority(-1000);  // Very high priority (-1000)
-    this->setTouchMode(ccTouchesMode::kCCTouchesOneByOne);
-    
-    // Important: Allow touches even if parent blocks them
-    this->setSwallowTouches(false);
-    
-    log::info("[Mousse] CursorNode initialized with touch enabled!");
+    log::info("[Mousse] CursorNode initialized!");
     
     return true;
 }
@@ -49,26 +41,4 @@ void CursorNode::draw() {
     glLineWidth(2.0f);
     ccDrawLine(ccp(pos.x - 30, pos.y), ccp(pos.x + 30, pos.y));
     ccDrawLine(ccp(pos.x, pos.y - 30), ccp(pos.x, pos.y + 30));
-}
-
-bool CursorNode::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    log::info("[Mousse] Touch BEGAN at: {}x{}", touch->getLocation().x, touch->getLocation().y);
-    return true;  // Accept the touch
-}
-
-void CursorNode::ccTouchMoved(CCTouch* touch, CCEvent* event) {
-    auto pos = touch->getLocation();
-    auto winSize = CCDirector::get()->getWinSize();
-    pos.x = std::max(0.0f, std::min(winSize.width, pos.x));
-    pos.y = std::max(0.0f, std::min(winSize.height, pos.y));
-    setPosition(pos);
-    log::info("[Mousse] Touch MOVED to: {}x{}", pos.x, pos.y);
-}
-
-void CursorNode::ccTouchEnded(CCTouch* touch, CCEvent* event) {
-    log::info("[Mousse] Touch ENDED");
-}
-
-void CursorNode::ccTouchCancelled(CCTouch* touch, CCEvent* event) {
-    log::info("[Mousse] Touch CANCELLED");
 }
