@@ -12,30 +12,17 @@ class $modify(MyMenuLayer, MenuLayer) {
 
         auto winSize = CCDirector::get()->getWinSize();
 
-        // 1. Full‑screen red layer – you will definitely see this
-        auto redLayer = CCLayerColor::create(ccc4(255, 0, 0, 150));
-        redLayer->setZOrder(99998);
-        this->addChild(redLayer);
-
-        // 2. Green label to confirm mod is loaded
-        auto label = CCLabelBMFont::create("MOUSSE ACTIVE", "bigFont.fnt");
-        if (label) {
-            label->setScale(0.8f);
-            label->setColor(ccc3(0, 255, 0));
-            label->setPosition(ccp(winSize.width / 2, winSize.height / 2 + 100));
-            label->setZOrder(100000);
-            this->addChild(label);
-        }
-
-        // 3. Create and center the cursor
+        // Create and center the cursor
         if (!g_cursor) {
             g_cursor = CursorNode::create();
             if (g_cursor) {
-                g_cursor->setZOrder(99999);
+                g_cursor->setZOrder(1000);  // High Z-order so it's on top
                 this->addChild(g_cursor);
                 g_cursor->setPosition(ccp(winSize.width / 2, winSize.height / 2));
                 g_cursor->setVisible(true);
-                log::info("Cursor created and centered.");
+                log::info("[Mousse] Cursor created at position: {}x{}", winSize.width/2, winSize.height/2);
+            } else {
+                log::error("[Mousse] Failed to create cursor!");
             }
         }
 
@@ -44,5 +31,5 @@ class $modify(MyMenuLayer, MenuLayer) {
 };
 
 $on_mod(Loaded) {
-    log::info("Mousse mod loaded (MenuLayer hook).");
+    log::info("[Mousse] Mousse mod loaded successfully!");
 }
